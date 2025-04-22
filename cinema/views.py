@@ -164,4 +164,3 @@ class OrderViewSet(DefaultPermissionMixin, viewsets.ModelViewSet):
         if self.action in ["list", "create"]:
             return [IsAuthenticated()]
         raise NotFound()
-
