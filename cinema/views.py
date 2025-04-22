@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db.models import F, Count
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -22,10 +23,7 @@ from cinema.serializers import (
     OrderSerializer,
     OrderListSerializer,
 )
-from user.permissions import (
-    IsAdminOrIfAuthenticatedReadOnly,
-    DenyAnyPermission
-)
+from user.permissions import IsAdminOrIfAuthenticatedReadOnly
 
 
 class DefaultPermissionMixin:
@@ -34,7 +32,7 @@ class DefaultPermissionMixin:
     def get_permissions(self):
         if self.action in ["list", "create"]:
             return [IsAdminOrIfAuthenticatedReadOnly()]
-        return [DenyAnyPermission()]
+        raise NotFound()
 
 
 class GenreViewSet(DefaultPermissionMixin, viewsets.ModelViewSet):
@@ -94,7 +92,7 @@ class MovieViewSet(DefaultPermissionMixin, viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ["list", "create", "retrieve"]:
             return [IsAdminOrIfAuthenticatedReadOnly()]
-        return [DenyAnyPermission()]
+        raise MethodNotAllowed(self.request.method)
 
 
 class MovieSessionViewSet(DefaultPermissionMixin, viewsets.ModelViewSet):
@@ -165,4 +163,5 @@ class OrderViewSet(DefaultPermissionMixin, viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ["list", "create"]:
             return [IsAuthenticated()]
-        return [DenyAnyPermission()]
+        raise NotFound()
+
