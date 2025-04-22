@@ -95,7 +95,7 @@ class MovieViewSet(DefaultPermissionMixin, viewsets.ModelViewSet):
         raise MethodNotAllowed(self.request.method)
 
 
-class MovieSessionViewSet(DefaultPermissionMixin, viewsets.ModelViewSet):
+class MovieSessionViewSet(viewsets.ModelViewSet):
     queryset = (
         MovieSession.objects.all()
         .select_related("movie", "cinema_hall")
@@ -106,6 +106,7 @@ class MovieSessionViewSet(DefaultPermissionMixin, viewsets.ModelViewSet):
         )
     )
     serializer_class = MovieSessionSerializer
+    authentication_classes = (TokenAuthentication,)
     permission_classes = [IsAdminOrIfAuthenticatedReadOnly]
 
     def get_queryset(self):
@@ -131,9 +132,6 @@ class MovieSessionViewSet(DefaultPermissionMixin, viewsets.ModelViewSet):
             return MovieSessionDetailSerializer
 
         return MovieSessionSerializer
-
-    def get_permissions(self):
-        return APIView.get_permissions(self)
 
 
 class OrderPagination(PageNumberPagination):
